@@ -34,7 +34,7 @@ DOCUMENT = (
     "The Celestial Dragons consider themselves gods. "
     "The faces of the Five Elders are known only to the Fleet Admiral, the Admirals and the Celestial Dragons. "
     "THE SECRET RULER. "
-    "Much later in the story, Imu is introduced as the supreme ruler of the world"
+    "Much later in the story, Imu is introduced as the supreme ruler of the world who rules the world government in secret. "
     "Imu rules the whole world and world government, and the Five Elders serve directly under Imu, who truly rules the world. "
     "The Five Elders and world government hides that it is been ruled by world government. to profit them."
     "No one other than the Five Elders has seen Imu, until recently, when Sabo saw Imu. "
