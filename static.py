@@ -1,36 +1,55 @@
-# week6/static_rag.py
 # STATIC RAG with Gemini: retrieve top-1 chunk -> stuff into prompt -> answer.
 # No checking of whether the retrieved chunk is actually sufficient.
-#
-# Setup:  pip install google-genai
-#         export GEMINI_API_KEY="your-key"      (Windows: set GEMINI_API_KEY=...)
-# Run:    python static_rag.py
+
+
 
 import os
 import re
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")  # override via env if needed
-client = genai.Client()  # reads GEMINI_API_KEY / GOOGLE_API_KEY from the environment
+load_dotenv()  
+
+MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash") 
+
+API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+if not API_KEY:
+    raise SystemExit("No API key found. Add GEMINI_API_KEY=your-key to the .env file "
+                     "(same folder you run the script from).")
+client = genai.Client(api_key=API_KEY)
+
+
 
 
 # --- KNOWLEDGE BASE ------------------------------------------------------------
 # The first sentence says "subject to the conditions in the next section".
 # The actual conditions (Enterprise = 7 days only) live in the next part of the doc.
 DOCUMENT = (
-    "Acme Cloud Refund Policy. Customers may request a full refund within 30 days "
-    "of purchase, subject to the conditions listed in the next section. "
-    "CONDITIONS AND EXCEPTIONS. Enterprise tier purchases are only refundable within "
-    "7 days of purchase. Accounts that have stored more than 100 GB of data are not "
-    "eligible for any refund. "
-    "REFUND PROCESSING. Approved refunds are returned to the original payment method "
-    "within 5 to 10 business days. "
-    "SUPPORT. Contact billing@acme.example to start a refund request."
+    "One Piece: The World Government. "
+    "Officially, nobody rules the world government, and no king or anyone else holds sole power over it. "
+    "The Marines, led by a Fleet Admiral and the Admirals, keep the peace across the world. "
+    "The World Government is bound to the Celestial Dragons: it serves them, protecting and "
+    "benefiting them rather than the whole world. "
+    "The Five Elders are the highest visible rank and control the whole operation. "
+    "The Celestial Dragons consider themselves gods. "
+    "The faces of the Five Elders are known only to the Fleet Admiral, the Admirals and the Celestial Dragons. "
+    "THE SECRET RULER. "
+    "Much later in the story, Imu is introduced as the supreme ruler of the world and the shadow ruler "
+    "of the World Government. The Five Elders serve directly under Imu, who truly rules the world. "
+    "No one other than the Five Elders has seen Imu, until recently, when Sabo saw Imu. "
+    "BACKGROUND. "
+    "The capital of the World Government is Mary Geoise, a Holy Land on the Red Line, and its "
+    "headquarters is Pangaea Castle, which holds the Empty Throne. The throne is said to symbolize "
+    "that no single person from the twenty families of Celestial Dragons can rule the world, but in "
+    "truth it is occupied in secret by Imu."
 )
 
-QUESTION = "I bought the Acme Cloud Enterprise tier 20 days ago. Am I eligible for a full refund?"
-GROUND_TRUTH = "NO - Enterprise purchases are only refundable within 7 days."
+QUESTION = "Does anyone rule the World Government?"
+GROUND_TRUTH = "YES - Imu is the secret supreme ruler; the Five Elders serve directly under Imu."
+
+
+
 
 
 # --- NAIVE CHUNKING ------------------------------------------------------------
@@ -42,6 +61,9 @@ def chunk_by_words(text, size=24):
 
 
 CHUNKS = chunk_by_words(DOCUMENT)
+
+
+
 
 
 # --- RETRIEVAL -----------------------------------------------------------------
@@ -65,6 +87,8 @@ def retrieve(query, top_k=1):
         ((len(q & tokens(c)), i) for i, c in enumerate(CHUNKS)), reverse=True
     )
     return [(i, CHUNKS[i]) for score, i in scored[:top_k] if score > 0]
+
+
 
 
 # --- GENERATION ----------------------------------------------------------------
@@ -91,6 +115,8 @@ def static_rag(question):
     print(f"[Static RAG answer]\n{answer}\n")
     print(f"[Ground truth from the FULL document]\n{GROUND_TRUTH}")
     return answer
+
+
 
 
 if __name__ == "__main__":
