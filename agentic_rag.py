@@ -12,7 +12,7 @@ from google.genai import types
 
 load_dotenv()
 
-MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 
 API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 if not API_KEY:
